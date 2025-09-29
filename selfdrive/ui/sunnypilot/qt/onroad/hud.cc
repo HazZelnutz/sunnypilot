@@ -112,6 +112,8 @@ void HudRendererSP::updateState(const UIState &s) {
   smartCruiseControlMapActive = lp_sp.getSmartCruiseControl().getMap().getActive();
 
   greenLightAlert = lp_sp.getE2eAlerts().getGreenLightAlert();
+  leftBlinkerOn = car_state.getLeftBlinker();
+  rightBlinkerOn = car_state.getRightBlinker();
 }
 
 void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {

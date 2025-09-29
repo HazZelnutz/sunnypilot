@@ -101,4 +101,6 @@ private:
   bool greenLightAlert;
   int e2eAlertFrame;
   int e2eAlertDisplayTimer = 0;
+  bool leftBlinkerOn;
+  bool rightBlinkerOn;
 };
