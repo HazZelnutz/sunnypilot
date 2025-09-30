@@ -114,6 +114,7 @@ void HudRendererSP::updateState(const UIState &s) {
   greenLightAlert = lp_sp.getE2eAlerts().getGreenLightAlert();
   leftBlinkerOn = car_state.getLeftBlinker();
   rightBlinkerOn = car_state.getRightBlinker();
+  showTurnSignals = s.scene.turn_signals;
 }
 
 void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {
@@ -219,7 +220,9 @@ void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {
     }
 
     // Blinker
-    drawBlinker(p, surface_rect, 180, 265);
+    if(showTurnSignals) {
+      drawBlinker(p, surface_rect, 180, 265);
+    }
   }
 
   p.restore();

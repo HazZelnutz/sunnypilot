@@ -106,4 +106,5 @@ private:
   bool rightBlinkerOn;
   bool blinkerPhase;
   int blinkerFrameCounter;
+  bool showTurnSignals;
 };
