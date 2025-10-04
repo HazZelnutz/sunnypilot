@@ -104,7 +104,6 @@ private:
   int e2eAlertDisplayTimer = 0;
   bool leftBlinkerOn;
   bool rightBlinkerOn;
-  bool blinkerPhase;
   int blinkerFrameCounter;
   bool showTurnSignals;
 };
