@@ -221,7 +221,7 @@ void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {
 
     // Blinker
     if(showTurnSignals) {
-      drawBlinker(p, surface_rect, 180, 265);
+      drawBlinker(p, surface_rect);
     }
   }
 
@@ -730,7 +730,7 @@ void HudRendererSP::drawE2eAlert(QPainter &p, const QRect &surface_rect) {
   p.drawPixmap(drawPoint, alert_img);
 }
 
-void HudRendererSP::drawBlinker(QPainter &p, const QRect &surface_rect, int x_gap, int y_offset) {
+void HudRendererSP::drawBlinker(QPainter &p, const QRect &surface_rect) {
   if(!leftBlinkerOn && !rightBlinkerOn) {
     blinkerFrameCounter = 0;
     return;
@@ -795,6 +795,9 @@ void HudRendererSP::drawBlinker(QPainter &p, const QRect &surface_rect, int x_ga
       p.drawPolygon(arrow);
   };
 
+  int x_gap = 180;
+  int y_offset = 265;
+  
   // Draw Left
   if (leftBlinkerOn) {
     drawCircle(surface_rect.center().x() - x_gap, y_offset);
