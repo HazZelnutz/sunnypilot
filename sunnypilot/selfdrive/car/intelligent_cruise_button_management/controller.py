@@ -34,6 +34,7 @@ class IntelligentCruiseButtonManagement:
     self.v_target = 0
     self.v_cruise_cluster = 0
     self.v_cruise_min = 0
+    self.v_error = 0
     self.cruise_button = SendButtonState.none
     self.state = State.inactive
     self.pre_active_timer = 0
@@ -58,6 +59,7 @@ class IntelligentCruiseButtonManagement:
     self.v_target = round(self.v_target_ms_last * speed_conv)
     self.v_cruise_min = get_minimum_set_speed(self.is_metric)
     self.v_cruise_cluster = round(CS.cruiseState.speedCluster * speed_conv)
+    self.v_error = self.v_cruise_cluster - self.v_target
 
   def update_state_machine(self) -> custom.IntelligentCruiseButtonManagement.SendButtonState:
     self.pre_active_timer = max(0, self.pre_active_timer - 1)
