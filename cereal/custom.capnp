@@ -29,6 +29,7 @@ struct IntelligentCruiseButtonManagement {
   state @0 :IntelligentCruiseButtonManagementState;
   sendButton @1 :SendButtonState;
   vTarget @2 :Float32;
+  vError @3 :Float32;
 
   enum IntelligentCruiseButtonManagementState {
     inactive @0;      # No button press or default state

@@ -555,6 +555,7 @@ class SelfdriveD(CruiseHelper):
     icbm.state = self.icbm.state
     icbm.sendButton = self.icbm.cruise_button
     icbm.vTarget = self.icbm.v_target
+    icbm.vError = self.icbm.v_error
 
     self.pm.send('selfdriveStateSP', ss_sp_msg)
 
