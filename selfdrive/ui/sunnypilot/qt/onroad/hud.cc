@@ -826,8 +826,8 @@ void HudRendererSP::drawBlinker(QPainter &p, const QRect &surface_rect) {
 
   const int circleRadius = 60;
   const int arrowLength = 60;
-  const int x_gap = is_metric ? 170 : 160;
-  const int y_offset = 272;
+  const int x_gap = 250;
+  const int y_offset = 145;
 
   const int centerX = surface_rect.center().x();
 
