@@ -28,7 +28,7 @@ private:
   int drawRightDevUIElement(QPainter &p, int x, int y, const QString &value, const QString &label, const QString &units, QColor &color);
   int drawBottomDevUIElement(QPainter &p, int x, int y, const QString &value, const QString &label, const QString &units, QColor &color);
   void drawBottomDevUI(QPainter &p, int x, int y);
-  void drawStandstillTimer(QPainter &p, int x, int y);
+  void drawStandstillTimer(QPainter &p, const QRect &surface_rect);
   bool pulseElement(int frame);
   void drawSmartCruiseControlOnroadIcon(QPainter &p, const QRect &surface_rect, int x_offset, int y_offset, std::string name);
   void drawSpeedLimitSigns(QPainter &p, QRect &sign_rect);
@@ -71,6 +71,7 @@ private:
   bool isStandstill;
   float standstillElapsedTime;
   bool longOverride;
+  QPolygon standstillTimerOctagon;
   bool smartCruiseControlVisionEnabled;
   bool smartCruiseControlVisionActive;
   int smartCruiseControlVisionFrame;
