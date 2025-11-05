@@ -18,6 +18,8 @@ HudRendererSP::HudRendererSP() {
   int size = e2e_alert_size * 2 - 40;
   green_light_alert_img = loadPixmap("../../sunnypilot/selfdrive/assets/images/green_light.png", {size, size});
   lead_depart_alert_img = loadPixmap("../../sunnypilot/selfdrive/assets/images/lead_depart.png", {size, size});
+
+  standstillTimerOctagon.reserve(8);
 }
 
 void HudRendererSP::updateState(const UIState &s) {
@@ -173,9 +175,9 @@ void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {
 
   if (!reversing) {
     // Smart Cruise Control
-    int x_offset = -260;
-    int y1_offset = -80;
-    int y2_offset = -140;
+    int x_offset = -surface_rect.center().x() + 146;
+    int y1_offset = 55;
+    int y2_offset = y1_offset + 60;
 
     int y_scc_v = 0, y_scc_m = 0;
     const int orders[2] = {y1_offset, y2_offset};
@@ -211,6 +213,11 @@ void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {
     if (devUiInfo != 0) {
       QRect rect_right(surface_rect.right() - (UI_BORDER_SIZE * 2), UI_BORDER_SIZE * 1.5, 184, 170);
       drawRightDevUI(p, surface_rect.right() - 184 - UI_BORDER_SIZE * 2, UI_BORDER_SIZE * 2 + rect_right.height());
+    }
+
+    // Standstill Timer
+    if (standstillTimer) {
+      drawStandstillTimer(p, surface_rect);
     }
 
     // Speed Limit
@@ -264,21 +271,9 @@ void HudRendererSP::draw(QPainter &p, const QRect &surface_rect) {
       }
       drawE2eAlert(p, surface_rect);
     }
-    // Standstill Timer
-    else if (standstillTimer && isStandstill) {
-      alert_img = QPixmap();
-
-      standstillElapsedTime += 1.0 / UI_FREQ;
-      int minute = static_cast<int>(standstillElapsedTime / 60);
-      int second = static_cast<int>(standstillElapsedTime - (minute * 60));
-      alert_text = QString("%1:%2").arg(minute, 1, 10, QChar('0')).arg(second, 2, 10, QChar('0'));
-      drawE2eAlert(p, surface_rect, tr("STOPPED"));
-      e2eAlertFrame++;
-    }
     // No Alerts displayed
     else {
       e2eAlertFrame = 0;
-      if (!isStandstill) standstillElapsedTime = 0.0;
     }
 
     // Blinker
@@ -440,6 +435,43 @@ void HudRendererSP::drawBottomDevUI(QPainter &p, int x, int y) {
 
   UiElement altitudeElement = DeveloperUi::getAltitude(gpsAccuracy, altitude);
   rw += drawBottomDevUIElement(p, rw, y, altitudeElement.value, altitudeElement.label, altitudeElement.units, altitudeElement.color);
+}
+
+void HudRendererSP::drawStandstillTimer(QPainter &p, const QRect &surface_rect) {
+  if (isStandstill) {
+    const int x = surface_rect.right() / 12 * 10;
+    const int y = surface_rect.bottom() / 12 * 1.53;
+
+    standstillElapsedTime += 1.0 / UI_FREQ;
+
+    int minute = static_cast<int>(standstillElapsedTime / 60);
+    int second = static_cast<int>(standstillElapsedTime - (minute * 60));
+
+    // stop sign for standstill timer
+    const int size = 190;  // size
+    const float angle = M_PI / 8.0f;
+
+    standstillTimerOctagon.clear();
+    for (int i = 0; i < 8; i++) {
+      float curr_angle = angle + i * M_PI / 4.0f;
+      int point_x = x + size / 2 * cos(curr_angle);
+      int point_y = y + size / 2 * sin(curr_angle);
+      standstillTimerOctagon << QPoint(point_x, point_y);
+    }
+
+    p.setPen(QPen(Qt::white, 6));
+    p.setBrush(QColor(255, 90, 81, 200)); // red pastel
+    p.drawPolygon(standstillTimerOctagon);
+
+    QString time_str = QString("%1:%2").arg(minute, 1, 10, QChar('0')).arg(second, 2, 10, QChar('0'));
+    p.setFont(InterFont(55, QFont::Bold));
+    p.setPen(Qt::white);
+    QRect timerTextRect = p.fontMetrics().boundingRect(QString(time_str));
+    timerTextRect.moveCenter({x, y});
+    p.drawText(timerTextRect, Qt::AlignCenter, QString(time_str));
+  } else {
+    standstillElapsedTime = 0.0;
+  }
 }
 
 void HudRendererSP::drawSpeedLimitSigns(QPainter &p, QRect &sign_rect) {
@@ -826,8 +858,8 @@ void HudRendererSP::drawBlinker(QPainter &p, const QRect &surface_rect) {
 
   const int circleRadius = 60;
   const int arrowLength = 60;
-  const int x_gap = 160;
-  const int y_offset = 272;
+  const int x_gap = 250;
+  const int y_offset = 145;
 
   const int centerX = surface_rect.center().x();
 
