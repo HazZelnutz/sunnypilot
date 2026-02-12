@@ -2,7 +2,7 @@
 import math
 import os
 
-from openpilot.cereal import log
+from openpilot.cereal import log, custom
 from opendbc.car.structs import car
 import openpilot.cereal.messaging as messaging
 from openpilot.common.constants import CV
@@ -20,6 +20,7 @@ AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 AudibleAlert = log.SelfdriveState.AudibleAlert
+AudibleAlertSP = custom.SelfdriveStateSP.AudibleAlert
 EventName = log.OnroadEvent.EventName
 
 
@@ -445,7 +446,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Take Control",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlertSP.promptSingleHigh, 2.),
   },
 
   # Thrown when the fan is driven at >50% but is not rotating
