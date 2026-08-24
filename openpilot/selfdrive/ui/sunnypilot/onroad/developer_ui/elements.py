@@ -346,3 +346,12 @@ class AltitudeElement(GpsInfoElement):
 
     value = f"{altitude:.1f}" if gps_accuracy != 0.0 else "-"
     return UiElement(value, "ALT.", self.unit, rl.WHITE)
+
+class RBDElement:
+  def __init__(self):
+    self.unit = "m"
+
+  def update(self, sm, is_metric: bool) -> UiElement:
+    dist = sm['longitudinalPlanSP'].speedLimit.resolver.distToSpeedLimit
+    value = f"{dist:.1f}"
+    return UiElement(value, "RBD.", self.unit, rl.GREEN)
