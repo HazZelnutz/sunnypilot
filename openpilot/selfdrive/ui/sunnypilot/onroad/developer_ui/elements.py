@@ -354,4 +354,5 @@ class RBDElement:
   def update(self, sm, is_metric: bool) -> UiElement:
     dist = sm['longitudinalPlanSP'].speedLimit.resolver.distToSpeedLimit
     value = f"{dist:.1f}"
-    return UiElement(value, "RBD.", self.unit, rl.GREEN)
+    color = rl.GREEN if dist > 0 else rl.WHITE
+    return UiElement(value, "RBD.", self.unit, color)
