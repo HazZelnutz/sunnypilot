@@ -20,6 +20,8 @@ SpeedLimitSource = custom.LongitudinalPlanSP.SpeedLimit.Source
 
 ALL_SOURCES = tuple(SpeedLimitSource.schema.enumerants.values())
 
+AHEAD_LATCH_PASSED_MARGIN = 50.  # m, release a latched upcoming limit this far past its expected position
+
 
 class SpeedLimitResolver:
   limit_solutions: dict[custom.LongitudinalPlanSP.SpeedLimit.Source, float]
@@ -40,6 +42,8 @@ class SpeedLimitResolver:
     self._gps_location_service = get_gps_location_service(self.params)
     self.limit_solutions = {}  # Store for speed limit solutions from different sources
     self.distance_solutions = {}  # Store for distance to current speed limit start for different sources
+    self._ahead_limit_latched = 0.
+    self._ahead_dist_remaining = 0.
 
     self.policy = self.params.get("SpeedLimitPolicy", return_default=True)
     self.policy = get_sanitize_int_param(
@@ -140,12 +144,29 @@ class SpeedLimitResolver:
     self.limit_solutions[SpeedLimitSource.map] = speed_limit
     self.distance_solutions[SpeedLimitSource.map] = 0.
 
+    # Latched upcoming limit: hold it until the sign is passed, otherwise slowing down
+    # makes the trigger condition below go false and the old limit comes back mid-braking
+    if self._ahead_limit_latched > 0.:
+      self._ahead_dist_remaining -= self.v_ego * DT_MDL
+      ahead_replaced = 0. < next_speed_limit != self._ahead_limit_latched
+      passed = speed_limit == self._ahead_limit_latched or self._ahead_dist_remaining < -AHEAD_LATCH_PASSED_MARGIN
+      if ahead_replaced or passed:
+        self._ahead_limit_latched = 0.
+      else:
+        if next_speed_limit == self._ahead_limit_latched:
+          self._ahead_dist_remaining = distance_to_speed_limit_ahead
+        self.limit_solutions[SpeedLimitSource.map] = self._ahead_limit_latched
+        self.distance_solutions[SpeedLimitSource.map] = max(0., self._ahead_dist_remaining)
+        return
+
     # Next speed limit is lower the current speed
     if 0. < next_speed_limit < self.v_ego:
       adapt_time = (next_speed_limit - self.v_ego) / LIMIT_ADAPT_ACC
       adapt_distance = self.v_ego * adapt_time + 0.5 * LIMIT_ADAPT_ACC * adapt_time ** 2
 
       if distance_to_speed_limit_ahead <= adapt_distance:
+        self._ahead_limit_latched = next_speed_limit
+        self._ahead_dist_remaining = distance_to_speed_limit_ahead
         self.limit_solutions[SpeedLimitSource.map] = next_speed_limit
         self.distance_solutions[SpeedLimitSource.map] = distance_to_speed_limit_ahead
 
